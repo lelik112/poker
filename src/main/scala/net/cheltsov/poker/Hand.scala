@@ -3,17 +3,17 @@ package net.cheltsov.poker
 import net.cheltsov.poker.Converter._
 
 case class Hand(value: Long) extends Ordered[Hand]{
-  def |(that: Hand): Hand = {
+  def | (that: Hand): Hand = {
     Hand(this.value | that.value)
   }
 
-  def ^(that: Hand): Hand = {
+  def ^ (that: Hand): Hand = {
     Hand(this.value ^ that.value)
   }
 
   def size: Int = value.countBits
 
-  lazy val suits: List[Suit] = this.toSuits
+  lazy val suits: List[Suit] = Suit.suitByPosition.toList.map(p => p._2((value >>> (16 * p._1)).toInt))
 
   override def toString: String = {
     (for {
@@ -26,6 +26,8 @@ case class Hand(value: Long) extends Ordered[Hand]{
   }
 
   override def compare(that: Hand): Int = {
+    if (this.size != 5 || that.size != 5)
+      throw new IllegalStateException("Hands with 5 cards can be compared only")
     Hand.combinations.foldLeft[Option[Int]](None) {
       case (None, f) => defineWinner(that, f)
       case (result, _) => result
@@ -42,17 +44,8 @@ case class Hand(value: Long) extends Ordered[Hand]{
     }
   }
 
-  //TODO replace by findCombination
   private def compareByHighestCard(that: Hand): Int = {
-    var mask: Long = (1 to 3).foldLeft(1L << 15)((acc, _) => (acc << 16) | acc)
-    var self = 0L
-    var other = 0L
-    while (self == other && mask == (mask >>> 1) << 1) {
-      self = value & mask
-      other = that.value & mask
-      mask = mask >>> 1
-    }
-    self.compareTo(other)
+    this.collapse - that.collapse
   }
 }
 
@@ -62,20 +55,20 @@ object Hand {
   val StraightFlushMask: Long = 0x7c00000000000000L
   val FourCardsMask: Long = 0x4000400040004000L
   val SuitMask: Long = 0x7fff000000000000L
-  val StraightMask: Long = 0x7c007c007c007c00L
+  val StraightMask: Long = 0x7c00L
 
   val combinations: List[Hand => Option[Hand]] = List(
-    findCombination(StraightFlushMask, 5, 1),
-    findCombination(FourCardsMask, 4, 1),
-    combine(findCombination(FourCardsMask, 3, 1), findCombination(FourCardsMask, 2, 1)),
+    findCombination(StraightFlushMask, 5),
+    findCombination(FourCardsMask, 4),
+    combine(findCombination(FourCardsMask, 3), findCombination(FourCardsMask, 2)),
     findCombination(SuitMask, 5, 16),
-    findCombination(StraightMask, 5, 1),
-    findCombination(FourCardsMask, 3, 1),
-    combine(findCombination(FourCardsMask, 2, 1), findCombination(FourCardsMask, 2, 1)),
-    findCombination(FourCardsMask, 2, 1)
+    h => findCombination(StraightMask, 5)(Hand(h.collapse)),
+    findCombination(FourCardsMask, 3),
+    combine(findCombination(FourCardsMask, 2), findCombination(FourCardsMask, 2)),
+    findCombination(FourCardsMask, 2)
   )
 
-  def findCombination(mask: Long, minCards: Int, step: Int): Hand => Option[Hand] = h => {
+  def findCombination(mask: Long, minCards: Int, step: Int = 1): Hand => Option[Hand] = h => {
     var m = mask
     var result: Option[Long] = None
     while (result.isEmpty && m == (m >>> step) << step) {

@@ -28,9 +28,9 @@ object Converter {
     }
   }
 
-  implicit final class HandToSuitOps(val hand: Hand) extends AnyVal {
-    def toSuits: List[Suit] = {
-      suitByPosition.toList.map(p => p._2((hand.value >>> (16 * p._1)).toInt))
+  implicit final class CollapseHandOps(val hand: Hand) extends AnyVal {
+    def collapse: Int = {
+      hand.suits.foldLeft(0)(_ | _.value)
     }
   }
 
@@ -41,13 +41,12 @@ object Converter {
   }
 
   implicit final class StringToHandOps(val value: String) extends AnyVal {
-    def toHand: Hand = {
-      @scala.annotation.tailrec
-      def parse(chars: List[String], hand: Hand): Hand = chars match {
-        case Nil => hand
-        case r :: s :: xs => parse(xs, hand | Hand(1L << (r.toIntRepresentation + positions(s) * 16)))
+    def toHands: List[Hand] = {
+      def parse(chars: List[String], hands: List[Hand]): List[Hand] = chars match {
+        case Nil => hands
+        case r :: s :: xs => Hand(1L << (r.toIntRepresentation + positions(s) * 16)) :: parse(xs, hands)
       }
-      parse(value.split("").toList, Hand(0))
+      parse(value.split("").toList, Nil)
     }
   }
 
