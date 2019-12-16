@@ -61,25 +61,25 @@ object Hand {
   val combinations: List[Hand => Option[Hand]] = List(
     findCombination(StraightFlushMask, 5),
     findCombination(FourCardsMask, 4),
-    combine(findCombination(FourCardsMask, 3), findCombination(FourCardsMask, 2)),
+    combine(findCombination(FourCardsMask, 3), findCombination(FourCardsMask, 2), (l, _) => l),
     findCombination(SuitMask, 5, 16),
     h => findCombination(StraightMask, 5)(Hand(h.collapse)),
     findCombination(FourCardsMask, 3),
-    combine(findCombination(FourCardsMask, 2), findCombination(FourCardsMask, 2)),
+    combine(findCombination(FourCardsMask, 2), findCombination(FourCardsMask, 2), _ + _),
     findCombination(FourCardsMask, 2)
   )
 
   @scala.annotation.tailrec
-  private def findCombination(mask: Long, minCards: Int, step: Int = 1, isFullHouse: Boolean = false)(h: Hand): Option[Hand] = {
+  private def findCombination(mask: Long, minCards: Int, step: Int = 1)(h: Hand): Option[Hand] = {
     val nextMask = mask >>> step
     if ((mask & h.value).countBits == minCards) Some(Hand(mask & h.value))
     else if (nextMask << step == mask) findCombination(nextMask, minCards, step)(h)
     else None
   }
 
-  private def combine(left: Hand => Option[Hand], right: Hand => Option[Hand]): Hand => Option[Hand] =
+  private def combine(left: Hand => Option[Hand], right: Hand => Option[Hand], f: (Hand, Hand) => Hand): Hand => Option[Hand] =
     h => left(h) match {
-      case Some(l) => right(h - l).map(_ + l)
+      case Some(l) => right(h - l).map(f(l, _))
       case _ => None
     }
 }
