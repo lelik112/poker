@@ -1,13 +1,29 @@
 package net.cheltsov.poker
 
-object Poker extends App{
-  val input: String = "4cKs4h8s7s 5 Ad4s Ac4d As9s KhKd 5d6d"
-  val input2: String = "4cKs4h8s7s 2 Ad4sAc4d As9sKhKd"
+import scala.io.StdIn
 
-  Parser.pars(input2, false) match {
-    case Left(m) => println(m)
-    case Right(value) => {
-      println(value.head.combinations(3).toList)
+object Poker extends App {
+
+  Iterator.continually(StdIn.readLine()).takeWhile(i => i != null && i != "q")
+    .map(Parser.pars(_, args.contains("--omaha"))).map {
+    case Left(m) => Some(m)
+    case Right(game) => {
+      game.tail
+        .map { h =>
+          h.combinations(2)
+            .map(_.reduceLeft(_ + _))
+            .flatMap(p => game.head.combinations(3).map(p + _.reduceLeft(_ + _)))
+            .max
+        }
+        .zip(game.tail)
+        .sortBy(p => p._1)
+        .map(p => (p._1, p._2.map(_.toString).reduceLeft(_ + _)))
+        .sliding(2)
+        .map{case List(l, r) => if (l._1 < r._1) (l._2, " " + r._2) else (l._2, "=" + r._2)}
+        .foldLeft[Option[String]](None){
+          case (None, (l, r)) => Some(l + r)
+          case (Some(l), (_, r)) => Some(l + r)
+        }
     }
-  }
+  }.foreach(result => println(result.getOrElse("Ooooops. It was going to be unreachable")))
 }

@@ -13,7 +13,7 @@ object Validator {
     declared > actual || !(1 to MaxHandNumber).contains(declared)
 
   def areCardsUnique(hands: List[Hand]): Boolean = {
-    val (acc, size) = hands.foldLeft((Hand(0), 0)) ((p, h) => (p._1 | h, p._2 + h.size))
+    val (acc, size) = hands.foldLeft((Hand(0), 0)) ((p, h) => (p._1 + h, p._2 + h.size))
     acc.size == size
   }
 }

@@ -3,17 +3,18 @@ package net.cheltsov.poker
 import net.cheltsov.poker.Converter._
 
 case class Hand(value: Long) extends Ordered[Hand]{
-  def | (that: Hand): Hand = {
+
+  def +(that: Hand): Hand = {
     Hand(this.value | that.value)
   }
 
-  def ^ (that: Hand): Hand = {
+  def - (that: Hand): Hand = {
     Hand(this.value ^ that.value)
   }
 
   def size: Int = value.countBits
 
-  lazy val suits: List[Suit] = Suit.suitByPosition.toList.map(p => p._2((value >>> (16 * p._1)).toInt))
+  lazy val suits: List[Suit] = Suit.suitByPosition.toList.map(p => p._2(((value >>> (16 * p._1)) & 0xFFFFL).toInt))
 
   override def toString: String = {
     (for {
@@ -40,7 +41,7 @@ case class Hand(value: Long) extends Ordered[Hand]{
       case (Some(_), None) => Some(1)
       case (None, Some(_)) => Some(-1)
       case (Some(s), Some(o)) if s.compareByHighestCard(o) != 0 => Some(s.compareByHighestCard(o))
-      case (Some(s), Some(o)) => Some((this ^ s).compareByHighestCard(that ^ o))
+      case (Some(s), Some(o)) => Some((this - s).compareByHighestCard(that - o))
     }
   }
 
@@ -73,14 +74,14 @@ object Hand {
     var result: Option[Long] = None
     while (result.isEmpty && m == (m >>> step) << step) {
       m = m >> step
-      if ((m & h.value).countBits >= minCards) result = Some(m)
+      if ((m & h.value).countBits == minCards) result = Some(m)
     }
-    result.map(Hand(_))
+    result.map(m => Hand(m & h.value))
   }
 
   private def combine(left: Hand => Option[Hand], right: Hand => Option[Hand]): Hand => Option[Hand] =
     h => left(h) match {
-      case Some(l) => right(h ^ l)
+      case Some(l) => right(h - l)
       case _ => None
     }
 }

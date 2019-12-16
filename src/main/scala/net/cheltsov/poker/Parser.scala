@@ -4,8 +4,8 @@ import net.cheltsov.poker.Converter._
 import net.cheltsov.poker.Validator._
 
 object Parser {
-  def pars(input: String, isTexasHoldem: Boolean = true): Either[String, List[List[Hand]]] = {
-    val handCardsSize = if (isTexasHoldem) 2 else 4
+  def pars(input: String, isOmaha: Boolean = false): Either[String, List[List[Hand]]] = {
+    val handCardsSize = if (isOmaha) 4 else 2
     val inputArray = input.split("\\s")
 
     (isValidInput(input, handCardsSize), inputArray) match {
