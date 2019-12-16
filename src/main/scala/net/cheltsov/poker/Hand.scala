@@ -70,7 +70,7 @@ object Hand {
   )
 
   @scala.annotation.tailrec
-  def findCombination(mask: Long, minCards: Int, step: Int = 1)(h: Hand): Option[Hand] = {
+  private def findCombination(mask: Long, minCards: Int, step: Int = 1, isFullHouse: Boolean = false)(h: Hand): Option[Hand] = {
     val nextMask = mask >>> step
     if ((mask & h.value).countBits == minCards) Some(Hand(mask & h.value))
     else if (nextMask << step == mask) findCombination(nextMask, minCards, step)(h)
@@ -79,7 +79,7 @@ object Hand {
 
   private def combine(left: Hand => Option[Hand], right: Hand => Option[Hand]): Hand => Option[Hand] =
     h => left(h) match {
-      case Some(l) => right(h - l)
+      case Some(l) => right(h - l).map(_ + l)
       case _ => None
     }
 }
