@@ -69,14 +69,12 @@ object Hand {
     findCombination(FourCardsMask, 2)
   )
 
-  def findCombination(mask: Long, minCards: Int, step: Int = 1): Hand => Option[Hand] = h => {
-    var m = mask
-    var result: Option[Long] = None
-    while (result.isEmpty && m == (m >>> step) << step) {
-      m = m >> step
-      if ((m & h.value).countBits == minCards) result = Some(m)
-    }
-    result.map(m => Hand(m & h.value))
+  @scala.annotation.tailrec
+  def findCombination(mask: Long, minCards: Int, step: Int = 1)(h: Hand): Option[Hand] = {
+    val nextMask = mask >>> step
+    if ((mask & h.value).countBits == minCards) Some(Hand(mask & h.value))
+    else if (nextMask << step == mask) findCombination(nextMask, minCards, step)(h)
+    else None
   }
 
   private def combine(left: Hand => Option[Hand], right: Hand => Option[Hand]): Hand => Option[Hand] =
