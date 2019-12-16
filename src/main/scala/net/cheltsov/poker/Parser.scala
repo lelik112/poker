@@ -15,7 +15,7 @@ object Parser {
         Left(s"Wrong amount of hands: ${a(1)}")
       case (_, a) =>
         val hands = a.slice(2, a(1).toInt + 2)
-          .foldLeft(List(a(0).toHands)) ((l: List[List[Hand]], c: String) => c.toHands :: l).reverse
+          .foldLeft(List(a(0).toHands))((l: List[List[Hand]], c: String) => c.toHands :: l).reverse
         if (areCardsUnique(hands.flatten))
           Right(hands)
         else

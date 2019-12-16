@@ -46,6 +46,7 @@ object Converter {
         case Nil => hands
         case r :: s :: xs => Hand(1L << (r.toIntRepresentation + positions(s) * 16)) :: parse(xs, hands)
       }
+
       parse(value.split("").toList, Nil)
     }
   }
@@ -53,7 +54,8 @@ object Converter {
   implicit final class LongToCountBitsOps(val value: Long) extends AnyVal {
     def countBits: Int = {
       @scala.annotation.tailrec
-      def bits(i: Long, acc: Int): Int = if (i == 0) acc else bits (i >> 1, (1 & i).toInt + acc)
+      def bits(i: Long, acc: Int): Int = if (i == 0) acc else bits(i >> 1, (1 & i).toInt + acc)
+
       bits(value, 0)
     }
   }

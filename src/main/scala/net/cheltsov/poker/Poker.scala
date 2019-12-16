@@ -19,8 +19,8 @@ object Poker extends App {
         .sortBy(p => p._1)
         .map(p => (p._1, p._2.map(_.toString).reduceLeft(_ + _)))
         .sliding(2)
-        .map{case List(l, r) => if (l._1 < r._1) (l._2, " " + r._2) else (l._2, "=" + r._2)}
-        .foldLeft[Option[String]](None){
+        .map { case List(l, r) => if (l._1 < r._1) (l._2, " " + r._2) else (l._2, "=" + r._2) }
+        .foldLeft[Option[String]](None) {
           case (None, (l, r)) => Some(l + r)
           case (Some(l), (_, r)) => Some(l + r)
         }

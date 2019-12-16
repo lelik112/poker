@@ -2,17 +2,17 @@ package net.cheltsov.poker
 
 import net.cheltsov.poker.Converter._
 
-case class Hand(value: Long) extends Ordered[Hand]{
+case class Hand(value: Long) extends Ordered[Hand] {
 
   def +(that: Hand): Hand = {
     Hand(this.value | that.value)
   }
 
-  def - (that: Hand): Hand = {
+  def -(that: Hand): Hand = {
     Hand(this.value ^ that.value)
   }
 
-  def size: Int = value.countBits
+  lazy val size: Int = value.countBits
 
   lazy val suits: List[Suit] = Suit.suitByPosition.toList.map(p => p._2(((value >>> (16 * p._1)) & 0xFFFFL).toInt))
 

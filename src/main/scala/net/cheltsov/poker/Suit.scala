@@ -7,8 +7,11 @@ sealed abstract class Suit(val position: Int, val name: String) {
 }
 
 case class Spades(value: Int) extends Suit(positions(SpadesName), SpadesName)
+
 case class Hearts(value: Int) extends Suit(positions(HeartsName), HeartsName)
+
 case class Diamonds(value: Int) extends Suit(positions(DiamondsName), DiamondsName)
+
 case class Clubs(value: Int) extends Suit(positions(ClubsName), ClubsName)
 
 object Suit {
