@@ -40,8 +40,8 @@ case class Hand(value: Long) extends Ordered[Hand] {
       case (None, None) => None
       case (Some(_), None) => Some(1)
       case (None, Some(_)) => Some(-1)
-      case (Some(s), Some(o)) if s.compareByHighestCard(o) != 0 => Some(s.compareByHighestCard(o))
-      case (Some(s), Some(o)) => Some((this - s).compareByHighestCard(that - o))
+      case (Some(s), Some(o)) => Some(s.compareByHighestCard(o))
+        .map(c => if (c != 0) c else (this - s).compareByHighestCard(that - o))
     }
   }
 
@@ -78,8 +78,5 @@ object Hand {
   }
 
   private def combine(left: Hand => Option[Hand], right: Hand => Option[Hand], f: (Hand, Hand) => Hand): Hand => Option[Hand] =
-    h => left(h) match {
-      case Some(l) => right(h - l).map(f(l, _))
-      case _ => None
-    }
+    h => left(h).flatMap(l => right(h - l).map(f(l, _)))
 }

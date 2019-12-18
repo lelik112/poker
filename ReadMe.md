@@ -39,13 +39,11 @@ In case of ties the ranks of the cards forming the combinations decide the highe
 
 The input is to be read from the standard input in the form of:
 
-<5 board cards> <number of hands> <hand 1> <hand 2> <...> <hand N>
+<5 board cards> <hand 1> <hand 2> <...> <hand N>
 
 ... where: 
 
 ·       <5 board cards> is a 10 character string where each 2 characters encode a card 
-
-·       <number of hands> is an integer from 1 to 256 which represents how many hands are to be compared 
 
 ·       <hand X> is a 4 character string where each 2 characters encode a card, with 2 cards per hand
 
