@@ -63,7 +63,7 @@ object Hand {
     findCombination(FourCardsMask, 4),
     combine(findCombination(FourCardsMask, 3), findCombination(FourCardsMask, 2), (l, _) => l),
     findCombination(SuitMask, 5, 16),
-    h => findCombination(StraightMask, 5)(Hand(h.collapse)),
+    h => findCombination(StraightMask, 5)(Hand(h.collapse)).map(_ => h),
     findCombination(FourCardsMask, 3),
     combine(findCombination(FourCardsMask, 2), findCombination(FourCardsMask, 2), _ + _),
     findCombination(FourCardsMask, 2)

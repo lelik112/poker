@@ -2,17 +2,18 @@ package net.cheltsov.poker
 
 import net.cheltsov.poker.Suit._
 
-sealed abstract class Suit(val position: Int, val name: String) {
+sealed abstract class Suit(val name: String) {
+  val position: Int = positions(name)
   val value: Int
 }
 
-case class Spades(value: Int) extends Suit(positions(SpadesName), SpadesName)
+case class Spades(value: Int) extends Suit(SpadesName)
 
-case class Hearts(value: Int) extends Suit(positions(HeartsName), HeartsName)
+case class Hearts(value: Int) extends Suit(HeartsName)
 
-case class Diamonds(value: Int) extends Suit(positions(DiamondsName), DiamondsName)
+case class Diamonds(value: Int) extends Suit(DiamondsName)
 
-case class Clubs(value: Int) extends Suit(positions(ClubsName), ClubsName)
+case class Clubs(value: Int) extends Suit(ClubsName)
 
 object Suit {
   val SpadesName: String = "s"
