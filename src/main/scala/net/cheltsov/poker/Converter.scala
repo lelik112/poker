@@ -1,6 +1,7 @@
 package net.cheltsov.poker
 
 import net.cheltsov.poker.Suit._
+import net.cheltsov.poker.binary.BinaryHand
 
 object Converter {
 
@@ -28,36 +29,29 @@ object Converter {
     }
   }
 
-  implicit final class CollapseHandOps(val hand: Hand) extends AnyVal {
+  implicit final class CollapseHandOps(val hand: BinaryHand) extends AnyVal {
     def collapse: Int = {
       hand.suits.foldLeft(0)(_ | _.value)
     }
   }
 
   implicit final class SuitToHandOps(val suit: Suit) extends AnyVal {
-    def toHand: Hand = {
-      Hand(suit.value.toLong << suit.position)
+    def toHand: BinaryHand = {
+      BinaryHand(suit.value.toLong << suit.position)
     }
   }
 
   implicit final class StringToHandOps(val value: String) extends AnyVal {
-    def toHands: List[Hand] = {
-      def parse(chars: List[String], hands: List[Hand]): List[Hand] = chars match {
+    def toHands: List[BinaryHand] = {
+      def parse(chars: List[String], hands: List[BinaryHand]): List[BinaryHand] = chars match {
         case Nil => hands
-        case r :: s :: xs => Hand(1L << (r.toIntRepresentation + positions(s) * 16)) :: parse(xs, hands)
+        case r :: s :: xs => BinaryHand(1L << (r.toIntRepresentation + positions(s) * 16)) :: parse(xs, hands)
       }
 
       parse(value.split("").toList, Nil)
     }
   }
 
-  implicit final class LongToCountBitsOps(val value: Long) extends AnyVal {
-    def countBits: Int = {
-      @scala.annotation.tailrec
-      def bits(i: Long, acc: Int): Int = if (i == 0) acc else bits(i >> 1, (1 & i).toInt + acc)
 
-      bits(value, 0)
-    }
-  }
 
 }
