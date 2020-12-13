@@ -10,6 +10,9 @@ case class DeCards(cards: Set[Card]) extends Cards[DeCards]{
   override val size: Int = cards.size
   override val ranks: List[Int] = cards.toList.map(_.rank)
 
+  override def combinations(n: Int): List[DeCards] =
+    cards.toList.combinations(n).map(DeCards(_)).toList
+
   override def toString: String = cards.foldLeft("")(_ + _)
 }
 
@@ -21,4 +24,6 @@ object DeCards {
     }
     new DeCards(parse(value.toCharArray.toList, Nil).toSet)
   }
+
+  def apply(cards: Iterable[Card]): DeCards = new DeCards(cards.toSet)
 }

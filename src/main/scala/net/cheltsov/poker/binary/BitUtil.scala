@@ -25,4 +25,16 @@ object BitUtil {
       ((value | value >>> 16 | value >>> 32 | value >>> 48) & 0x_0000_0000_0000_ffffL).toInt
     }
   }
+
+  implicit final class SplitBitsOps(val value: Long) extends AnyVal {
+    def splitBits: List[Long] = {
+      @scala.annotation.tailrec
+      def split(pointer: Long, acc: List[Long]): List[Long] = pointer match {
+        case 0L                           => acc
+        case _ if (pointer & value) == 0  => split(pointer << 1, acc)
+        case _                            => split(pointer << 1, pointer :: acc)
+      }
+      split(1L, Nil)
+    }
+  }
 }

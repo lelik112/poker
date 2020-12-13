@@ -12,17 +12,20 @@ case class BiCards(cards: Long) extends Cards[BiCards] {
   override lazy val size: Int = cards.countBits
   override val ranks: List[Int] =
     (for {
-      rank <- Cards.Ranks
+      rank          <- Cards.Ranks
       (_, position) <- positions
       if ((cards >> (16 * position + rank)) & 1) > 0
     } yield rank).foldRight[List[Int]](Nil) {
       _ :: _
     }
 
+  override def combinations(n: Int): List[BiCards] =
+    cards.splitBits.combinations(n).map(_.foldLeft(0L)(_ | _)).map(BiCards(_)).toList
+
   override def toString: String =
     (for {
-      rank <- Cards.Ranks
-      (name, position) <- positions
+      rank              <- Cards.Ranks
+      (name, position)  <- positions
       if ((cards >> (16 * position + rank)) & 1) > 0
     } yield Cards.fromRank(rank) + name).foldLeft("") {
       _ + _

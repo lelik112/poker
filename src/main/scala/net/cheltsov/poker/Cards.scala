@@ -8,6 +8,8 @@ trait Cards[C <: Cards[C]] {
   def -(that: C): C
   val size: Int
   val ranks: List[Int]
+  def combinations(n: Int): List[C]
+
   def compareByRank(that: C): Int =
     (this.ranks.sorted.reverse zip that.ranks.sorted.reverse).foldLeft(0) {
       case (0, p) => p._1 - p._2
