@@ -4,20 +4,20 @@ trait Hand[H <: Hand[H, C], C <: Cards[C]] extends Cards[C] with Ordered[H]{
 
   require(size == Hand.HandSize)
 
-  lazy val StraightFlushFinder: CombinationFinder = combineFiveCardsFinders(FlushFinder, StraightFinder)
-  lazy val LowestStraightFlushFinder: CombinationFinder = combineFiveCardsFinders(FlushFinder, LowestStraightFinder)
-  lazy val FourOfKindFinder: CombinationFinder = sameRankFinder(4)
-  lazy val FullHouseFinder: CombinationFinder = unionFinders(ThreeOfKindFinder, PairFinder)
-  val FlushFinder: CombinationFinder
-  val StraightFinder: CombinationFinder
-  val LowestStraightFinder: CombinationFinder
-  lazy val ThreeOfKindFinder: CombinationFinder = sameRankFinder(3)
-  lazy val TwoPairFinder: CombinationFinder = unionFinders(PairFinder, PairFinder)
-  lazy val PairFinder: CombinationFinder = sameRankFinder(2)
+  private lazy val StraightFlushFinder: CombinationFinder = intersectFinders(FlushFinder, StraightFinder)
+  private lazy val LowestStraightFlushFinder: CombinationFinder = intersectFinders(FlushFinder, LowestStraightFinder)
+  private lazy val FourOfKindFinder: CombinationFinder = sameRankFinder(4)
+  private lazy val FullHouseFinder: CombinationFinder = unionFinders(ThreeOfKindFinder, PairFinder)
+  protected val FlushFinder: CombinationFinder
+  protected val StraightFinder: CombinationFinder
+  protected val LowestStraightFinder: CombinationFinder
+  private lazy val ThreeOfKindFinder: CombinationFinder = sameRankFinder(3)
+  private lazy val TwoPairFinder: CombinationFinder = unionFinders(PairFinder, PairFinder)
+  private lazy val PairFinder: CombinationFinder = sameRankFinder(2)
 
-  def sameRankFinder(amount: Int): CombinationFinder
+  protected def sameRankFinder(amount: Int): CombinationFinder
 
-  lazy val Finders: List[CombinationFinder] = List(
+  private lazy val Finders: List[CombinationFinder] = List(
     (1, StraightFlushFinder),
     (2, LowestStraightFlushFinder),
     (3, FourOfKindFinder),
@@ -57,7 +57,7 @@ trait Hand[H <: Hand[H, C], C <: Cards[C]] extends Cards[C] with Ordered[H]{
       lowCombination <- lower(combination - highCombination)
     } yield highCombination + lowCombination
 
-  private def combineFiveCardsFinders(left: CombinationFinder, right: CombinationFinder): CombinationFinder =
+  private def intersectFinders(left: CombinationFinder, right: CombinationFinder): CombinationFinder =
     combination => for {
       _ <- left(combination)
       _ <- right(combination)

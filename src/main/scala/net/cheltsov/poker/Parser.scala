@@ -1,23 +1,24 @@
 package net.cheltsov.poker
 
-import net.cheltsov.poker.Converter._
+import net.cheltsov.poker.Solver._
 import net.cheltsov.poker.Validator._
-import net.cheltsov.poker.binary.BiHand
+import net.cheltsov.poker.binary.BiCards
 
 object Parser {
-//  def pars(input: String, isOmaha: Boolean = false): Either[String, List[List[BinaryHand]]] = {
-//    val handCardsSize = if (isOmaha) 4 else 2
-//    val inputArray = input.split("\\s")
-//
-//    (isValidInput(input, handCardsSize), inputArray) match {
-//      case (false, _) =>
-//        Left(s"Input is not valid: $input")
-//      case (_, a) =>
-//        val hands = a.tail.foldLeft(List(a.head.toHands))((l: List[List[BinaryHand]], c: String) => c.toHands :: l).reverse
-//        if (areCardsUnique(hands.flatten))
-//          Right(hands)
-//        else
-//          Left(s"There are some not unique cards: $input")
-//    }
-//  }
+
+  def pars(input: String): Either[String, (String, List[BiCards])] = {
+
+    val inputList: List[String] = input.split(BlankRegex).toList
+    val gameName: String = inputList.head
+
+    if (inputList.isEmpty)
+      Left(s"$ErrorPrefix Input is empty")
+    else if (!Solver.SupportedGames.contains(gameName))
+      Left(s"$ErrorPrefix Unrecognized game type")
+    else if (!isValidInput(input))
+      Left(s"$ErrorPrefix Invalid input")
+    else
+      Right((gameName, inputList.tail.map(BiCards(_))))
+        .filterOrElse(p => areCardsUnique(p._2), s"$ErrorPrefix Cards are not unique")
+  }
 }

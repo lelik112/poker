@@ -3,6 +3,7 @@ package net.cheltsov.poker.denary
 import net.cheltsov.poker.Cards._
 
 sealed abstract class Card(val name: String) {
+
   val rank: Int
 
   override def toString: String = fromRank(rank) + name

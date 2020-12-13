@@ -2,8 +2,8 @@ package net.cheltsov.poker
 
 import scala.io.StdIn
 
-//object Poker extends App {
-//
+object Poker extends App {
+
 //  Iterator.continually(StdIn.readLine()).takeWhile(i => i != null && i != "q")
 //    .map(Parser.pars(_, args.contains("--omaha"))).map {
 //    case Left(m) => Some(m)
@@ -26,4 +26,4 @@ import scala.io.StdIn
 //        }
 //    }
 //  }.foreach(result => println(result.getOrElse("Ooooops. It was going to be unreachable")))
-//}
+}

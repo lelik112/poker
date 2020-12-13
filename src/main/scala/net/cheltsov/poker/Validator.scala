@@ -1,17 +1,28 @@
 package net.cheltsov.poker
 
-import net.cheltsov.poker.binary.BiHand
+import net.cheltsov.poker.Solver.{FiveCardDraw, OmahaHoldEm, TexasHoldEm}
+import net.cheltsov.poker.binary.BiCards
+
+import scala.util.matching.Regex
 
 object Validator {
+  val BlankRegex: String = "\\s+"
   val CardRegex: String = "([AKQJT2-9][hdcs])"
+  val TexasHoldEmRegex: Regex = s"\\S+\\s+$CardRegex{5}(\\s+$CardRegex{2})+".r
+  val OmahaHoldEmRegex: Regex = s"\\S+\\s+$CardRegex{5}(\\s+$CardRegex{4})+".r
+  val FiveCardDrawRegex: Regex = s"\\S+(\\s+$CardRegex{5})+".r
 
-  def isValidInput(input: String, handCardsSize: Int): Boolean = {
-    val regex = s"$CardRegex{5}(\\s+$CardRegex{$handCardsSize})+".r
+  def isValidInput(input: String): Boolean = {
+    val regex = input.split(BlankRegex).head match {
+      case TexasHoldEm  => TexasHoldEmRegex
+      case OmahaHoldEm  => OmahaHoldEmRegex
+      case FiveCardDraw => FiveCardDrawRegex
+      case _            => throw new IllegalStateException()
+    }
     regex matches input
   }
 
-//  def areCardsUnique(hands: List[BinaryHand]): Boolean = {
-//    val (acc, size) = hands.foldLeft((BinaryHand(0), 0))((p, h) => (p._1 + h, p._2 + h.size))
-//    acc.size == size
-//  }
+  def areCardsUnique(cards: List[BiCards]): Boolean = {
+    cards.map(_.size).sum == cards.reduce(_ + _).size
+  }
 }

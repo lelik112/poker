@@ -10,19 +10,23 @@ case class BiCards(cards: Long) extends Cards[BiCards] {
   override def -(that: BiCards): BiCards = BiCards(this.cards ^ that.cards)
 
   override lazy val size: Int = cards.countBits
+  override val ranks: List[Int] =
+    (for {
+      rank <- Cards.Ranks
+      (_, position) <- positions
+      if ((cards >> (16 * position + rank)) & 1) > 0
+    } yield rank).foldRight[List[Int]](Nil) {
+      _ :: _
+    }
 
-  override def compareByRank(that: BiCards): Int =
-    this.cards.collapseBitsToRightQuarter - that.cards.collapseBitsToRightQuarter
-
-  override def toString: String = {
+  override def toString: String =
     (for {
       rank <- Cards.Ranks
       (name, position) <- positions
       if ((cards >> (16 * position + rank)) & 1) > 0
-    } yield Cards.fromRank(rank) + name).reduceLeft {
+    } yield Cards.fromRank(rank) + name).foldLeft("") {
       _ + _
     }
-  }
 }
 
 object BiCards {

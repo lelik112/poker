@@ -32,9 +32,9 @@ object DeHand {
   }
 
   private def findStraight(deCards: DeCards): Option[DeCards] = {
-    Option.when(Cards.Ranks.containsSlice(deCards.sortedRanks))(deCards)
+    Option.when(Cards.Ranks.containsSlice(deCards.ranks.sorted))(deCards)
   }
 
   private def findLowestStraight(deCards: DeCards): Option[DeCards] =
-    Option.when(deCards.sortedRanks.toSet.subsetOf(Set(2, 3, 4, 5, 14)))(deCards)
+    Option.when(deCards.ranks.sorted.toSet.subsetOf(Set(2, 3, 4, 5, 14)))(deCards)
 }

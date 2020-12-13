@@ -7,7 +7,12 @@ trait Cards[C <: Cards[C]] {
   def +(that: C): C
   def -(that: C): C
   val size: Int
-  def compareByRank(that: C): Int
+  val ranks: List[Int]
+  def compareByRank(that: C): Int =
+    (this.ranks.sorted.reverse zip that.ranks.sorted.reverse).foldLeft(0) {
+      case (0, p) => p._1 - p._2
+      case (res, _) => res
+    }
 }
 
 object Cards {
@@ -21,11 +26,11 @@ object Cards {
   def toRank(value: String): Int = {
     value match {
       case v if "[2-9]".r matches v => v.toInt
-      case "T" => 10
-      case "J" => 11
-      case "Q" => 12
-      case "K" => 13
-      case "A" => 14
+      case "T" | "t" => 10
+      case "J" | "j" => 11
+      case "Q" | "q" => 12
+      case "K" | "k" => 13
+      case "A" | "a" => 14
       case _ => throw new IllegalStateException(s"$value is not a valid card rank")
     }
   }
