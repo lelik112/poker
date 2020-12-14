@@ -20,8 +20,8 @@ object Solver {
 
   private def findBestHand(board: BiCards)(distribution: (BiCards, String)): (BiHand, String) =
     ((for {
-      casino  <- board.combinations(3)
-      gambler <- distribution._1.combinations(2)
+      casino  <- board.combineCards(3)
+      gambler <- distribution._1.combineCards(2)
     } yield
       BiHand(casino + gambler)).max, distribution._2)
 

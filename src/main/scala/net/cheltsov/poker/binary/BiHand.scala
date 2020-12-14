@@ -1,6 +1,6 @@
 package net.cheltsov.poker.binary
 
-import net.cheltsov.poker.Hand
+import net.cheltsov.poker.{Cards, Hand}
 import net.cheltsov.poker.binary.BitUtil._
 import net.cheltsov.poker.binary.BiHand._
 
@@ -17,11 +17,11 @@ import net.cheltsov.poker.binary.BiHand._
               4     |     0     |     0     |     0       FourCards
  */
 
-class BiHand(override val cards: Long) extends BiCards(cards) with Hand[BiHand, BiCards] {
+class BiHand(override val cards: Long) extends BiCards(cards) with Hand {
 
-  override val FlushFinder: CombinationFinder                = findCombination(SuitMask, Hand.HandSize, LongStep)
-  override val StraightFinder: CombinationFinder             = findStraight(StraightMask)
-  override val LowestStraightFinder: CombinationFinder       = findStraight(LowestStraightMask)
+  override lazy val FlushFinder: CombinationFinder                = findCombination(SuitMask, Hand.HandSize, LongStep)
+  override lazy val StraightFinder: CombinationFinder             = findStraight(StraightMask)
+  override lazy val LowestStraightFinder: CombinationFinder       = findStraight(LowestStraightMask)
 
   override def sameRankFinder(amount: Int): CombinationFinder = findCombination(FourCardsMask, amount, ShortStep)
 }
@@ -39,7 +39,8 @@ object BiHand {
   val LongStep: Int =   16
 
   @scala.annotation.tailrec
-  private def findCombination(mask: Long, amount: Int, step: Int)(biCards: BiCards): Option[BiCards] = {
+  private def findCombination(mask: Long, amount: Int, step: Int)(cards: Cards): Option[BiCards] = {
+    val biCards = BiCards(cards)
     val nextMask = mask >>> step
     val combination = BiCards(mask & biCards.cards)
 
@@ -51,7 +52,8 @@ object BiHand {
       None
   }
 
-  private def findStraight(mask: Long)(biCards: BiCards): Option[BiCards] = {
+  private def findStraight(mask: Long)(cards: Cards): Option[BiCards] = {
+    val biCards = BiCards(cards)
     val unaryCards = BiCards(biCards.cards.collapseBitsToRightQuarter)
     findCombination(mask, Hand.HandSize, ShortStep)(unaryCards).flatMap(_ => Some(biCards))
   }

@@ -7,7 +7,7 @@ object Parser {
 
   def pars(input: String): Either[String, (String, List[(BiCards, String)])] = {
 
-    lazy val gameName :: gameHands = input.split(BlankRegex).toList
+    val gameName :: gameHands = input.split(BlankRegex).toList
 
     if (input.isEmpty || input.isBlank)
       Left("Input is empty")

@@ -1,26 +1,29 @@
 package net.cheltsov.poker.binary
 
+import net.cheltsov.poker.Cards.Rank
 import net.cheltsov.poker.binary.BiCards.positions
 import net.cheltsov.poker.binary.BitUtil._
-import net.cheltsov.poker.Cards
+import net.cheltsov.poker.{Cards, Clubs, Diamonds, Hearts, Spades, Suit}
 
-case class BiCards(cards: Long) extends Cards[BiCards] {
+case class BiCards(cards: Long) extends Cards {
 
-  override def +(that: BiCards): BiCards = BiCards(this.cards | that.cards)
-  override def -(that: BiCards): BiCards = BiCards(this.cards ^ that.cards)
+  override def +(that: Cards): BiCards = BiCards(this.cards | BiCards(that).cards)
+  override def -(that: Cards): BiCards = BiCards(this.cards ^ BiCards(that).cards)
 
   override lazy val size: Int = cards.countBits
-  override val ranks: List[Int] =
-    (for {
-      rank          <- Cards.Ranks
-      (_, position) <- positions
-      if ((cards >> (16 * position + rank)) & 1) > 0
-    } yield rank).foldRight[List[Int]](Nil) {
-      _ :: _
-    }
 
-  override def combinations(n: Int): List[BiCards] =
-    cards.splitBits.combinations(n).map(_.foldLeft(0L)(_ | _)).map(BiCards(_)).toList
+  override def compareByRank(that: Cards): Int =
+    this.cards.collapseBitsToRightQuarter - BiCards(that).cards.collapseBitsToRightQuarter
+
+  override def combineCards(n: Int): List[BiCards] =
+    cards.splitBits.combinations(n).map(_.reduce(_ | _)).map(BiCards(_)).toList
+
+  override lazy val asPairs: Set[(Rank, Suit)] =
+    (for {
+      rank              <- Cards.Ranks
+      (suit, position)  <- positions.toSet
+      if ((cards >> (16 * position + rank)) & 1) > 0
+    } yield (rank, suit)).toSet
 
   override def toString: String =
     (for {
@@ -35,13 +38,21 @@ case class BiCards(cards: Long) extends Cards[BiCards] {
 object BiCards {
   import net.cheltsov.poker.Cards._
 
-  val positions: Map[String, Int] = Map(SpadesName -> 0, HeartsName -> 1, DiamondsName -> 2, ClubsName -> 3)
+  val positions: Map[Suit, Int] = Map(Spades -> 0, Hearts -> 1, Diamonds -> 2, Clubs -> 3)
 
   def apply(value: String): BiCards = {
     def parse(chars: List[String], acc: Long): Long = chars match {
-      case Nil => acc
-      case r :: p :: xs => (1L << (toRank(r) + positions(p) * 16)) | parse(xs, acc)
+      case Nil          => acc
+      case r :: p :: xs => (1L << (toRank(r) + positions(Suit(p)) * 16)) | parse(xs, acc)
     }
     new BiCards(parse(value.split("").toList, 0L))
+  }
+
+  def apply(asPairs: Set[(Rank, Suit)]): BiCards =
+    BiCards(asPairs.map(p => 1L << (p._1 + positions(p._2))).reduce(_ | _))
+
+  def apply(cards: Cards): BiCards = cards match {
+    case biCards: BiCards => biCards
+    case _                => BiCards(cards.asPairs)
   }
 }

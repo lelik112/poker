@@ -22,7 +22,6 @@ object Validator {
     regex matches input
   }
 
-  def areCardsUnique(cards: List[BiCards]): Boolean = {
+  def areCardsUnique(cards: List[BiCards]): Boolean =
     cards.map(_.size).sum == cards.reduce(_ + _).size
-  }
 }

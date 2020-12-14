@@ -12,13 +12,13 @@ import scala.util.Random
 class HandTest extends AnyFlatSpec {
 
   var inputs: List[List[String]] = Nil
-//  var inputsH: Set[List[BiHand]] = Set()
-  var inputsH: Set[List[DeHand]] = Set()
+  var inputsH: Set[List[BiHand]] = Set()
+//  var inputsH: Set[List[DeHand]] = Set()
 
-  for (_ <- 0 to 1000_000) {
+  for (_ <- 0 to 1_000) {
     val randomLong: List[Long] = HandTest.randomHands
-//    val hands: List[BiHand] = randomLong.map(BiHand(_))
-    val hands: List[DeHand] = randomLong.map(v => DeHand(DeCards(BiCards(v).toString)))
+    val hands: List[BiHand] = randomLong.map(BiHand(_))
+//    val hands: List[DeHand] = randomLong.map(v => DeHand(DeCards(BiCards(v).toString)))
     inputsH = inputsH + hands
   }
   println(LocalTime.now())

@@ -1,27 +1,28 @@
 package net.cheltsov.poker
 
-trait Cards[C <: Cards[C]] {
+import net.cheltsov.poker.Cards.Rank
 
-  type CombinationFinder = C => Option[C]
+trait Cards extends {
 
-  def +(that: C): C
-  def -(that: C): C
-  val size: Int
-  val ranks: List[Int]
-  def combinations(n: Int): List[C]
+  def +(that: Cards): Cards
+  def -(that: Cards): Cards
+  def combineCards(n: Int): List[Cards]
+  val asPairs: Set[(Rank, Suit)]
 
-  def compareByRank(that: C): Int =
+  lazy val size:  Int        = asPairs.size
+  lazy val ranks: List[Rank] = asPairs.toList.map(_._1)
+  lazy val suits: List[Suit] = asPairs.toList.map(_._2)
+
+  def compareByRank(that: Cards): Int =
     (this.ranks.sorted.reverse zip that.ranks.sorted.reverse).foldLeft(0) {
-      case (0, p) => p._1 - p._2
+      case (0,   p) => p._1 - p._2
       case (res, _) => res
     }
 }
 
 object Cards {
-  val SpadesName: String = "s"
-  val HeartsName: String = "h"
-  val DiamondsName: String = "d"
-  val ClubsName: String = "c"
+
+  type Rank = Int
 
   val Ranks: Range = 2 to 14
 
@@ -47,5 +48,28 @@ object Cards {
       case 14 => "A"
       case _ => throw new IllegalStateException(s"$value is not a valid card rank")
     }
+  }
+}
+
+sealed abstract class Suit(val name: String) {
+  override def toString: String = name
+}
+
+case object Spades    extends Suit(Suit.SpadesName)
+case object Hearts    extends Suit(Suit.HeartsName)
+case object Diamonds  extends Suit(Suit.DiamondsName)
+case object Clubs     extends Suit(Suit.ClubsName)
+
+object Suit{
+  val SpadesName: String = "s"
+  val HeartsName: String = "h"
+  val DiamondsName: String = "d"
+  val ClubsName: String = "c"
+
+  def apply(name: String): Suit = name match {
+    case SpadesName   => Spades
+    case HeartsName   => Hearts
+    case DiamondsName => Diamonds
+    case ClubsName    => Clubs
   }
 }

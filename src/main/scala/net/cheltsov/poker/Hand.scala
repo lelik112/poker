@@ -1,69 +1,101 @@
 package net.cheltsov.poker
 
-trait Hand[H <: Hand[H, C], C <: Cards[C]] extends Cards[C] with Ordered[H]{
+import net.cheltsov.poker.Hand._
+import scala.collection.immutable.ListMap
 
-  require(size == Hand.HandSize)
+trait Hand extends Cards with Ordered[Hand]{
 
-  private lazy val StraightFlushFinder: CombinationFinder = intersectFinders(FlushFinder, StraightFinder)
-  private lazy val LowestStraightFlushFinder: CombinationFinder = intersectFinders(FlushFinder, LowestStraightFinder)
-  private lazy val FourOfKindFinder: CombinationFinder = sameRankFinder(4)
-  private lazy val FullHouseFinder: CombinationFinder = unionFinders(ThreeOfKindFinder, PairFinder)
-  protected val FlushFinder: CombinationFinder
-  protected val StraightFinder: CombinationFinder
-  protected val LowestStraightFinder: CombinationFinder
-  private lazy val ThreeOfKindFinder: CombinationFinder = sameRankFinder(3)
-  private lazy val TwoPairFinder: CombinationFinder = unionFinders(PairFinder, PairFinder)
-  private lazy val PairFinder: CombinationFinder = sameRankFinder(2)
+  type Order = Int
+  type CombinationFinder = Cards => Option[Cards]
+
+  require(size == HandSize)
+
+  lazy val StraightFlushFinder: CombinationFinder = combineFinders(FlushFinder, StraightFinder, (l, _) => l)
+  lazy val LowestStraightFlushFinder: CombinationFinder =
+                                                      combineFinders(FlushFinder, LowestStraightFinder, (l, _) => l)
+  lazy val FourOfKindFinder: CombinationFinder = sameRankFinder(4)
+  lazy val FullHouseFinder: CombinationFinder = combineFinders(ThreeOfKindFinder, PairFinder, _ - _)
+  lazy val FlushFinder: CombinationFinder = findFlush
+  lazy val StraightFinder: CombinationFinder = findStraight
+  lazy val LowestStraightFinder: CombinationFinder = findLowestStraight
+  lazy val ThreeOfKindFinder: CombinationFinder = sameRankFinder(3)
+  lazy val TwoPairFinder: CombinationFinder = combineFinders(PairFinder, PairFinder, _ - _)
+  lazy val PairFinder: CombinationFinder = sameRankFinder(2)
 
   protected def sameRankFinder(amount: Int): CombinationFinder
 
-  private lazy val Finders: List[CombinationFinder] = List(
-    (1, StraightFlushFinder),
-    (2, LowestStraightFlushFinder),
-    (3, FourOfKindFinder),
-    (4, FullHouseFinder),
-    (5, FlushFinder),
-    (6, StraightFinder),
-    (7, LowestStraightFinder),
-    (8, ThreeOfKindFinder),
-    (9, TwoPairFinder),
-    (10, PairFinder)
-  ).sortBy(_._1).map(_._2)
+  private lazy val Finders: ListMap[Order, CombinationFinder] = ListMap(
+    (StraightFlushOrder, StraightFlushFinder),
+    (LowestStraightFlushOrder, LowestStraightFlushFinder),
+    (FourOfKindOrder, FourOfKindFinder),
+    (FullHouseOrder, FullHouseFinder),
+    (FlushOrder, FlushFinder),
+    (StraightFlushOrder, StraightFinder),
+    (LowestStraightOrder, LowestStraightFinder),
+    (ThreeOfKindOrder, ThreeOfKindFinder),
+    (TwoPairOrder, TwoPairFinder),
+    (PairFinderOrder, PairFinder)
+  )
 
-  override def compare(that: H): Int = {
+  override def compare(that: Hand): Int = {
     Finders.foldLeft[Option[Int]](None) {
-      case (None, f)    => defineWinner(this.asInstanceOf[C], that.asInstanceOf[C], f)
-      case (result, _)  => result
-    }.getOrElse(this.compareByRank(that.asInstanceOf[C]))
+      case (None,   finder) => defineWinner(that, finder._1)
+      case (result, _)      => result
+    }.getOrElse(this.compareByRank(that))
   }
 
   @scala.annotation.tailrec
-  private def defineWinner(left: C, right: C, finder: CombinationFinder): Option[Int] = {
-            (finder(left),  finder(right)) match {
-      case  (None,          None)       => None
-      case  (Some(_),       None)       => Some(1)
-      case  (None,          Some(_))    => Some(-1)
-      case  (Some(l),       Some(r))    => (finder,           l.compareByRank(r)) match {
-                                      case (FullHouseFinder,  _)        => defineWinner(left, right, ThreeOfKindFinder)
-                                      case (_,                0)        => Some((left - l).compareByRank(right - r))
-                                      case (_,                result)   => Some(result)
+  private def defineWinner(that: Hand, order: Order): Option[Int] = {
+    val thisResult = this.Finders(order)(this)
+    val thatResult = that.Finders(order)(that)
+
+           (thisResult,      thatResult) match {
+      case (None,            None)            => None
+      case (Some(_),         None)            => Some(1)
+      case (None,            Some(_))         => Some(-1)
+      case (Some(thisCards), Some(thatCards)) =>
+
+               (order,          thisCards.compareByRank(thatCards)) match {
+          case (FullHouseOrder, _)      => defineWinner(that, ThreeOfKindOrder)
+          case (_,              0)      => Some((this - thisCards).compareByRank(that - thatCards))
+          case (_,              result) => Some(result)
       }
     }
   }
 
-  private def unionFinders(higher: CombinationFinder, lower: CombinationFinder): CombinationFinder =
-    combination => for {
-      highCombination <- higher(combination)
-      lowCombination <- lower(combination - highCombination)
-    } yield highCombination + lowCombination
+  private def findFlush(cards: Cards): Option[Cards] =
+    cards.suits.groupBy(identity).find(_._2.size == HandSize) match {
+      case Some(_)  => Some(cards)
+      case _        => None
+    }
 
-  private def intersectFinders(left: CombinationFinder, right: CombinationFinder): CombinationFinder =
-    combination => for {
-      _ <- left(combination)
-      _ <- right(combination)
-    } yield combination
+  private def findStraight(cards: Cards): Option[Cards] =
+    Option.when(Cards.Ranks.containsSlice(cards.ranks.sorted))(cards)
+
+  private def findLowestStraight(cards: Cards): Option[Cards] =
+    Option.when(cards.ranks.sorted.toSet.subsetOf(LowerStraightRanks))(cards)
+
+  private def combineFinders(left: CombinationFinder,
+                             right: CombinationFinder,
+                             combiner: (Cards, Cards) => Cards): CombinationFinder =
+    cards => for {
+      leftCards  <- left(cards)
+      rightCards <- right(combiner(cards, leftCards))
+    } yield leftCards + rightCards
 }
 
 object Hand {
-  val HandSize: Int = 5
+  val HandSize = 5
+  val LowerStraightRanks = Set(2, 3, 4, 5, 14)
+
+  val StraightFlushOrder = 1
+  val LowestStraightFlushOrder = 2
+  val FourOfKindOrder = 3
+  val FullHouseOrder = 4
+  val FlushOrder = 5
+  val StraightOrder = 6
+  val LowestStraightOrder = 7
+  val ThreeOfKindOrder = 8
+  val TwoPairOrder = 9
+  val PairFinderOrder = 10
 }
