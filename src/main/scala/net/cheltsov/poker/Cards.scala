@@ -14,7 +14,7 @@ trait Cards extends {
   lazy val ranks: List[Rank] = asPairs.toList.map(_._1)
   lazy val suits: List[Suit] = asPairs.toList.map(_._2)
 
-  def compareByRank(that: Cards): Int =
+  final def compareByRank(that: Cards): Int =
     (this.ranks.sorted.reverse zip that.ranks.sorted.reverse).foldLeft(0) {
       case (0,   p) => p._1 - p._2
       case (res, _) => res

@@ -1,76 +1,84 @@
 package net.cheltsov.poker
 
-import java.time.LocalTime
-
 import net.cheltsov.poker.binary.{BiCards, BiHand}
 import net.cheltsov.poker.denary.{DeCards, DeHand}
-import org.scalacheck.{Arbitrary, Gen, Prop}
-import org.scalatest.matchers
-import org.scalatest.prop.TableDrivenPropertyChecks
+import org.scalacheck.{Gen, Prop}
+import org.scalactic.anyvals.PosInt
 import org.scalatest.propspec.AnyPropSpec
 import org.scalatestplus.scalacheck.Checkers
 
-class HandSuit extends AnyPropSpec with TableDrivenPropertyChecks with Checkers{
+import scala.util.Random
+
+class HandSuit extends AnyPropSpec with Checkers {
+
+  val MinSuccessfulValue: PosInt = 1000_000
+  val MaxSameOrderRatio: Double = 0.09
+  val MinSameOrderRatio: Double = 0.03
 
   val cardGen: Gen[String] = for {
     suitGen <- Gen.oneOf("s", "h", "d", "c")
     genRank <- Gen.oneOf(2 to 14).map(Cards.fromRank)
   } yield genRank + suitGen
 
-  val handGen: Gen[String] = Gen.containerOfN[Set, String](5, cardGen).map(_.toList.mkString(""))
-  val similarHandsGen: Gen[(String, String)] = Gen.containerOfN[Set, String](6, cardGen).map(_.toList).map {
-    case h :: xs => (xs.mkString(""), (h :: xs.tail).mkString(""))
+  val handGen: Gen[String] = Gen.containerOfN[Set, String](5, cardGen).suchThat(_.size == 5).map(_.toList.mkString(""))
+
+  val similarHandsGen: Gen[(String, String)] = for {
+    hand <- handGen
+    card <- cardGen suchThat(!hand.contains(_))
+  } yield (hand, card + hand.tail.tail)
+
+  def shuffleCards(cards: String): String = Random.shuffle(cards.grouped(2)).mkString
+
+  property("BiHand and DeHand that created from the same cards must be in the same order") {
+    check(
+      Prop.forAll(handGen) { hand: String =>
+
+        val biHand: BiHand = BiHand(BiCards(hand))
+        val deHand: DeHand = DeHand(DeCards(shuffleCards(hand)))
+
+          biHand.compare(deHand) == 0
+      }
+    , MinSuccessful(MinSuccessfulValue))
   }
 
-//  implicit lazy val handsArbitrary: Arbitrary[Hand] = Arbitrary(handGen.map(s => BiHand(BiCards(s)).asInstanceOf[Hand]))
-//  implicit lazy val similarHandsArbitrary = Arbitrary(similarHandsGen)
+  var notChangedOrderCounter = 0
 
+  property("BiHand and DeHand that differ only on one card must be NOT unordered") {
+    check(
+      Prop.forAll(similarHandsGen) { case (original, changed) =>
 
-//  property("Interval are generated correctly") {
-//    check{
-//      (interval: (Int, Int)) =>
-//        val (i, j) = interval
-//        (i >= 0) && (j >= i) && (supremum >= j) && (maximalLength > j-i)
-//    }
-//  }
+        val biHand: BiHand = BiHand(BiCards(original))
+        val deHand: DeHand = DeHand(DeCards(changed))
+        val leftResult  = biHand.compare(deHand)
+        val rightResult = deHand.compare(biHand)
 
-//  property("****************ssssssssssss") {
-//    check {
-//      Prop.forAll { hands: Int =>
-//        println(hands)
-//        hands == (hands + 1)
-//      }
-//    }
-//  }
+        notChangedOrderCounter = leftResult match {
+          case 0 => notChangedOrderCounter + 1
+          case _ => notChangedOrderCounter
+        }
 
-  property("****************ssssssssssss") {
-    check {
-      Prop.forAll { hands: Int =>
-        println(hands)
-        hands == (hands + 1)
+        leftResult + rightResult == 0
       }
+      , MinSuccessful(MinSuccessfulValue))
+
+    check {
+      val sameOrderRatio = 1.0 * notChangedOrderCounter / MinSuccessfulValue
+      sameOrderRatio > MinSameOrderRatio && sameOrderRatio < MaxSameOrderRatio
     }
   }
 
+  property("BiHand and DeHand that totally differ must be NOT unordered") {
+    check(
+      Prop.forAll(handGen, handGen) { (left, right) =>
 
+        val biHand: BiHand = BiHand(BiCards(left))
+        val deHand: DeHand = DeHand(DeCards(right))
+        val leftResult  = biHand.compare(deHand)
+        val rightResult = deHand.compare(biHand)
 
-  println(handGen.sample)
-
-//
-//  var inputs: List[List[String]] = Nil
-////  var inputsH: Set[List[BiHand]] = Set()
-//  var inputsH: Set[List[DeHand]] = Set()
-//
-//  for (_ <- 0 to 10_000) {
-//    val randomLong: List[Hand] = CardsGen.randomBiHands
-////    val hands: List[BiHand] = randomLong.map(BiHand(_))
-//    val hands: List[DeHand] = randomLong.map(v => DeHand(DeCards(BiCards(v).toString)))
-//    inputsH = inputsH + hands
-//  }
-//  println(LocalTime.now())
-//  inputsH.foreach { input =>
-//    input.sorted.reverse
-//  }
-//  println(LocalTime.now())
+        leftResult + rightResult == 0
+      }
+      , MinSuccessful(MinSuccessfulValue))
+  }
 }
 

@@ -13,9 +13,6 @@ case class BiCards(cards: Long) extends Cards {
 
   override lazy val size: Int = cards.countBits
 
-  override def compareByRank(that: Cards): Int =
-    this.cards.collapseBitsToRightQuarter - BiCards(that).cards.collapseBitsToRightQuarter
-
   override def combineCards(n: Int): List[BiCards] =
     cards.splitBits.combinations(n).map(_.reduce(_ | _)).map(BiCards(_)).toList
 

@@ -78,7 +78,7 @@ trait Hand extends Cards with Ordered[Hand]{
     Option.when(Cards.Ranks.containsSlice(cards.ranks.sorted))(cards)
 
   private def findLowestStraight(cards: Cards): Option[Cards] =
-    Option.when(cards.ranks.sorted.toSet.subsetOf(LowerStraightRanks))(cards)
+    Option.when(LowerStraightRanks.subsetOf(cards.ranks.sorted.toSet))(cards)
 
   private def combineFinders(left: CombinationFinder,
                              right: CombinationFinder,
