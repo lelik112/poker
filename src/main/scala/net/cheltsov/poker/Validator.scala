@@ -1,7 +1,6 @@
 package net.cheltsov.poker
 
 import net.cheltsov.poker.Solver.{FiveCardDraw, OmahaHoldEm, TexasHoldEm}
-import net.cheltsov.poker.binary.BiCards
 
 import scala.util.matching.Regex
 
@@ -22,6 +21,6 @@ object Validator {
     regex matches input
   }
 
-  def areCardsUnique(cards: List[BiCards]): Boolean =
+  def areCardsUnique(cards: List[Cards]): Boolean =
     cards.map(_.size).sum == cards.reduce(_ + _).size
 }

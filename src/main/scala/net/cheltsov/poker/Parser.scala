@@ -1,11 +1,10 @@
 package net.cheltsov.poker
 
 import net.cheltsov.poker.Validator._
-import net.cheltsov.poker.binary.BiCards
 
 object Parser {
 
-  def pars(input: String): Either[String, (String, List[(BiCards, String)])] = {
+  def pars(input: String, parser: String => Cards): Either[String, (String, List[(Cards, String)])] = {
 
     val gameName :: gameHands = input.split(BlankRegex).toList
 
@@ -16,7 +15,7 @@ object Parser {
     else if (!isValidInput(input))
       Left("Invalid input")
     else
-      Right((gameName, gameHands.map(BiCards(_)) zip gameHands))
+      Right((gameName, gameHands.map(parser(_)) zip gameHands))
         .filterOrElse(p => areCardsUnique(p._2.map(_._1)), "Cards are not unique")
   }
 }

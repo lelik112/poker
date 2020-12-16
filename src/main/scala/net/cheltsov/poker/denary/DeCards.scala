@@ -1,12 +1,13 @@
 package net.cheltsov.poker.denary
 
-import net.cheltsov.poker.{Cards, Clubs, Diamonds, Hearts, Spades, Suit}
+import net.cheltsov.poker.{Cards, Clubs, Diamonds, Hand, Hearts, Spades, Suit}
 import net.cheltsov.poker.Cards.{Rank, fromRank, toRank}
 
 import scala.reflect.ClassTag
 
 case class DeCards(cards: Set[Card]) extends Cards{
 
+  override def toHand: Option[Hand] = if (size == 5) Some(DeHand(this)) else None
   override def +(that: Cards): DeCards = DeCards(this.cards ++ DeCards(that).cards)
   override def -(that: Cards): DeCards = DeCards(this.cards -- DeCards(that).cards)
 

@@ -4,6 +4,7 @@ import net.cheltsov.poker.Cards.Rank
 
 trait Cards extends {
 
+  def toHand: Option[Hand]
   def +(that: Cards): Cards
   def -(that: Cards): Cards
   def combineCards(n: Int): List[Cards]

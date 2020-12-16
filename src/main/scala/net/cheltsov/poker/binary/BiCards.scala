@@ -3,10 +3,11 @@ package net.cheltsov.poker.binary
 import net.cheltsov.poker.Cards.Rank
 import net.cheltsov.poker.binary.BiCards.positions
 import net.cheltsov.poker.binary.BitUtil._
-import net.cheltsov.poker.{Cards, Clubs, Diamonds, Hearts, Spades, Suit}
+import net.cheltsov.poker.{Cards, Clubs, Diamonds, Hand, Hearts, Spades, Suit}
 
 case class BiCards(cards: Long) extends Cards {
 
+  override def toHand: Option[Hand] = if (size == 5) Some(BiHand(this)) else None
   override def +(that: Cards): BiCards = BiCards(this.cards | BiCards(that).cards)
   override def -(that: Cards): BiCards = BiCards(this.cards ^ BiCards(that).cards)
 

@@ -22,7 +22,12 @@ trait Hand extends Cards with Ordered[Hand]{
   lazy val TwoPairFinder: CombinationFinder = combineFinders(PairFinder, PairFinder, _ - _)
   lazy val PairFinder: CombinationFinder = sameRankFinder(2)
 
-  protected def sameRankFinder(amount: Int): CombinationFinder
+  def sameRankFinder(amount: Int): CombinationFinder = cards =>
+    cards.combineCards(1)
+      .groupMapReduce(_.ranks.head)(identity)(_ + _)
+      .filter(_._2.size == amount)
+      .values
+      .headOption
 
   private lazy val Finders: ListMap[Order, CombinationFinder] = ListMap(
     (StraightFlushOrder, StraightFlushFinder),
