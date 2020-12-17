@@ -10,8 +10,8 @@ object Solver {
   val SupportedGames: List[String] = List(TexasHoldEm, OmahaHoldEm, FiveCardDraw)
   val ErrorPrefix = "Error:"
 
-  def process(line: String): String = {
-    Parser.pars(line, DeCards.apply) match {
+  def process(parser: String => Cards)(line: String): String = {
+    Parser.pars(line, parser) match {
       case Left(error)                              => s"$ErrorPrefix $error. Line: $line"
       case Right((FiveCardDraw, fivers))            => processHands(fivers.map(p => (p._1.toHand.get, p._2)))
       case Right((_, (board, _) :: distributions))  => processHands(distributions.map(findBestHand(board)))

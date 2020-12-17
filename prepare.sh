@@ -20,4 +20,4 @@ curl -L -o sbt-$SBT_VERSION.deb https://dl.bintray.com/sbt/debian/sbt-$SBT_VERSI
   rm sbt-$SBT_VERSION.deb && \
   apt-get install sbt -y
 
-sbt run
+sbt

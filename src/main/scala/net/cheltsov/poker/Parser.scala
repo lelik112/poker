@@ -4,7 +4,7 @@ import net.cheltsov.poker.Validator._
 
 object Parser {
 
-  def pars(input: String, parser: String => Cards): Either[String, (String, List[(Cards, String)])] = {
+  def pars[C <: Cards](input: String, parser: String => C): Either[String, (String, List[(C, String)])] = {
 
     val gameName :: gameHands = input.split(BlankRegex).toList
 
