@@ -5,3 +5,10 @@ WORKDIR ./poker
 RUN git checkout develop
 RUN chmod +x ./prepare.sh
 RUN ./prepare.sh
+
+
+#COPY ./ ./poker
+#WORKDIR ./poker
+#RUN ls
+#RUN chmod +x ./prepare.sh
+#RUN ./prepare.sh

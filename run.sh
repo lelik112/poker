@@ -1,0 +1,1 @@
+docker run --name poker_container -d --rm poker
