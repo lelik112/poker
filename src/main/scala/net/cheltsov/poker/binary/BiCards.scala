@@ -11,6 +11,9 @@ case class BiCards(cards: Long) extends Cards {
   override def +(that: Cards): BiCards = BiCards(this.cards | BiCards(that).cards)
   override def -(that: Cards): BiCards = BiCards(this.cards ^ BiCards(that).cards)
 
+  override def compareByRank(that: Cards): Int =
+    this.cards.collapseBitsToRightQuarter - BiCards(that).cards.collapseBitsToRightQuarter
+
   override lazy val size: Int = cards.countBits
 
   override def combineCards(n: Int): List[BiCards] =
@@ -47,7 +50,7 @@ object BiCards {
   }
 
   def apply(asPairs: Set[(Rank, Suit)]): BiCards =
-    BiCards(asPairs.map(p => 1L << (p._1 + positions(p._2))).reduce(_ | _))
+    BiCards(asPairs.map(p => 1L << (p._1 + positions(p._2) * 16)).fold(0L)(_ | _))
 
   def apply(cards: Cards): BiCards = cards match {
     case biCards: BiCards => biCards

@@ -11,9 +11,9 @@ import scala.util.Random
 
 class HandSuit extends AnyPropSpec with Checkers {
 
-  val MinSuccessfulValue: PosInt = 1000_000
-  val MaxSameOrderRatio: Double = 0.09
-  val MinSameOrderRatio: Double = 0.03
+  val MinSuccessfulTests: PosInt = 966_966
+  val MaxSameOrderRatio:  Double = 0.0_966
+  val MinSameOrderRatio:  Double = 0.00966
 
   val cardGen: Gen[String] = for {
     suitGen <- Gen.oneOf("s", "h", "d", "c")
@@ -38,7 +38,7 @@ class HandSuit extends AnyPropSpec with Checkers {
 
           biHand.compare(deHand) == 0
       }
-    , MinSuccessful(MinSuccessfulValue))
+    , MinSuccessful(MinSuccessfulTests))
   }
 
   var notChangedOrderCounter = 0
@@ -59,10 +59,10 @@ class HandSuit extends AnyPropSpec with Checkers {
 
         leftResult + rightResult == 0
       }
-      , MinSuccessful(MinSuccessfulValue))
+      , MinSuccessful(MinSuccessfulTests))
 
     check {
-      val sameOrderRatio = 1.0 * notChangedOrderCounter / MinSuccessfulValue
+      val sameOrderRatio = 1.0 * notChangedOrderCounter / MinSuccessfulTests
       sameOrderRatio > MinSameOrderRatio && sameOrderRatio < MaxSameOrderRatio
     }
   }
@@ -78,7 +78,7 @@ class HandSuit extends AnyPropSpec with Checkers {
 
         leftResult + rightResult == 0
       }
-      , MinSuccessful(MinSuccessfulValue))
+      , MinSuccessful(MinSuccessfulTests))
   }
 }
 

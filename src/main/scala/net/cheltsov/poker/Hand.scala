@@ -46,7 +46,7 @@ trait Hand extends Cards with Ordered[Hand]{
     Finders.foldLeft[Option[Int]](None) {
       case (None,   finder) => defineWinner(that, finder._1)
       case (result, _)      => result
-    }.getOrElse(this.compareByRank(that))
+    }.getOrElse(winnerByRank(this, that))
   }
 
   @scala.annotation.tailrec
@@ -56,17 +56,24 @@ trait Hand extends Cards with Ordered[Hand]{
 
            (thisResult,      thatResult) match {
       case (None,            None)            => None
-      case (Some(_),         None)            => Some(1)
-      case (None,            Some(_))         => Some(-1)
+      case (Some(_),         None)            => Some(LeftWinner)
+      case (None,            Some(_))         => Some(RightWinner)
       case (Some(thisCards), Some(thatCards)) =>
 
-               (order,          thisCards.compareByRank(thatCards)) match {
+               (order,          winnerByRank(thisCards, thatCards)) match {
           case (FullHouseOrder, _)      => defineWinner(that, ThreeOfKindOrder)
-          case (_,              0)      => Some((this - thisCards).compareByRank(that - thatCards))
+          case (_,              Draw)   => Some(winnerByRank(this - thisCards, that - thatCards))
           case (_,              result) => Some(result)
       }
     }
   }
+
+  private def winnerByRank(left: Cards, right: Cards): Int =
+    left.compareByRank(right) match {
+      case result if result > Draw => LeftWinner
+      case result if result < Draw => RightWinner
+      case _ => Draw
+    }
 
   private def findFlush(cards: Cards): Option[Cards] =
     cards.suits.groupBy(identity).find(_._2.size == HandSize) match {
@@ -92,6 +99,10 @@ trait Hand extends Cards with Ordered[Hand]{
 object Hand {
   val HandSize = 5
   val LowerStraightRanks = Set(2, 3, 4, 5, 14)
+
+  val Draw        = 0
+  val LeftWinner  = Draw + 1
+  val RightWinner = Draw - 1
 
   val StraightFlushOrder = 1
   val LowestStraightFlushOrder = 2
