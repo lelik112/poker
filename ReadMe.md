@@ -15,7 +15,7 @@ There are two implementations on the solution:
 
 #### Run on docker container
 
-TODO:
+TODO: Is not ready yet
 
 #### Input
 

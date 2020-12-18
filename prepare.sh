@@ -1,5 +1,4 @@
 TZ=Europe/Minsk
-SCALA_VERSION=2.13.1
 SBT_VERSION=1.2.8
 JAVA_HOME_11_X64=/usr/lib/jvm/java-11-openjdk-amd64
 
@@ -19,5 +18,3 @@ curl -L -o sbt-$SBT_VERSION.deb https://dl.bintray.com/sbt/debian/sbt-$SBT_VERSI
   dpkg -i sbt-$SBT_VERSION.deb && \
   rm sbt-$SBT_VERSION.deb && \
   apt-get install sbt -y
-
-sbt

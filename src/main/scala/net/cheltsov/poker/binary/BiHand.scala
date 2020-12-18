@@ -19,24 +19,30 @@ import net.cheltsov.poker.binary.BiHand._
 
 class BiHand(override val cards: Long) extends BiCards(cards) with Hand {
 
-  override lazy val FlushFinder: CombinationFinder                = findCombination(SuitMask, Hand.HandSize, LongStep)
-  override lazy val StraightFinder: CombinationFinder             = findStraight(StraightMask)
-  override lazy val LowestStraightFinder: CombinationFinder       = findStraight(LowestStraightMask)
+  override protected def findSameRankCards(amount: Int)(cards: Cards): Option[Cards] =
+    findCombination(FourCardsMask, amount, ShortStep)(cards)
 
-  override def sameRankFinder(amount: Int): CombinationFinder = findCombination(FourCardsMask, amount, ShortStep)
+  override protected def findFlush(cards: Cards): Option[Cards] =
+    findCombination(SuitMask, Hand.HandSize, LongStep)(cards)
+
+  override protected def findRegularStraight(cards: Cards): Option[Cards] =
+    findStraight(StraightMask)(cards)
+
+  override protected def findLowestStraight(cards: Cards): Option[Cards] =
+    findStraight(LowestStraightMask)(cards)
 }
 
 object BiHand {
-  def apply(cards: Long): BiHand = new BiHand(cards)
+  def apply(cards: Long)     : BiHand = new BiHand(cards)
   def apply(biCards: BiCards): BiHand = new BiHand(biCards.cards)
 
   val LowestStraightMask: Long = 0x_0000_0000_0000_403CL
-  val StraightMask: Long =       0x_0000_0000_0000_7C00L
-  val SuitMask: Long =           0x_7ffC_0000_0000_0000L
-  val FourCardsMask: Long =      0x_4000_4000_4000_4000L
+  val StraightMask:       Long = 0x_0000_0000_0000_7C00L
+  val SuitMask:           Long = 0x_7ffC_0000_0000_0000L
+  val FourCardsMask:      Long = 0x_4000_4000_4000_4000L
 
-  val ShortStep: Int =  1
-  val LongStep: Int =   16
+  val ShortStep: Int = 1
+  val LongStep:  Int = 16
 
   @scala.annotation.tailrec
   private def findCombination(mask: Long, amount: Int, step: Int)(cards: Cards): Option[BiCards] = {

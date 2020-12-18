@@ -8,8 +8,8 @@ import net.cheltsov.poker.{Cards, Clubs, Diamonds, Hand, Hearts, Spades, Suit}
 case class BiCards(cards: Long) extends Cards {
 
   override def toHand: Option[Hand] = if (size == 5) Some(BiHand(this)) else None
-  override def +(that: Cards): BiCards = BiCards(this.cards | BiCards(that).cards)
-  override def -(that: Cards): BiCards = BiCards(this.cards ^ BiCards(that).cards)
+  override def +(that: Cards): BiCards = BiCards (this.cards | BiCards(that).cards)
+  override def -(that: Cards): BiCards = BiCards((this.cards ^ BiCards(that).cards) & this.cards)
 
   override def compareByRank(that: Cards): Int =
     this.cards.collapseBitsToRightQuarter - BiCards(that).cards.collapseBitsToRightQuarter
