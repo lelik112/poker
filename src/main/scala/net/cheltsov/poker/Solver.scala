@@ -1,8 +1,5 @@
 package net.cheltsov.poker
 
-import net.cheltsov.poker.binary.{BiCards, BiHand}
-import net.cheltsov.poker.denary.DeCards
-
 object Solver {
   val TexasHoldEm: String  = "texas-holdem"
   val OmahaHoldEm: String  = "omaha-holdem"

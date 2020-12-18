@@ -3,6 +3,7 @@ package net.cheltsov.poker
 import net.cheltsov.poker.Solver.process
 import net.cheltsov.poker.binary.BiCards
 import net.cheltsov.poker.denary.DeCards
+import net.cheltsov.poker.string.StCards
 
 import scala.io.StdIn
 
@@ -17,6 +18,7 @@ object Main {
   def parser(arg: Option[String]): String => Cards = arg match {
     case Some("-b") | None => BiCards.apply
     case Some("-d")        => DeCards.apply
+    case Some("-s")        => StCards.apply
     case any               => throw new UnsupportedOperationException(s"Unrecognized option: $any")
   }
 }
