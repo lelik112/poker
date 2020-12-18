@@ -33,7 +33,6 @@ class BiHand(override val cards: Long) extends BiCards(cards) with Hand {
 }
 
 object BiHand {
-  def apply(cards: Long)     : BiHand = new BiHand(cards)
   def apply(biCards: BiCards): BiHand = new BiHand(biCards.cards)
 
   val LowestStraightMask: Long = 0x_0000_0000_0000_403CL
