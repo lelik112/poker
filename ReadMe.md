@@ -4,14 +4,16 @@ Algorithm for sorting poker hands according to their strength
 
 ## Implementation
 
-There are two implementations on the solution:
+There are three implementations on the solution:
  - Hands are represented as Set of Cards
  - Hands are represented as a single value of Long
+ - Hands are represented as an input String
 
-#### Run on a local machine
+#### Run
 
-`sbt run` or `sbt run -b`   runs the "binary" version 
-`sbt run -d`                runs the "denary" version 
+ - `sbt run` or `sbt run -b`   runs the "binary" version 
+ - `sbt run -d`                runs the "denary" version 
+ - `sbt run -s`                runs the "string" version 
 
 #### Input
 
