@@ -68,11 +68,11 @@ trait Hand extends Cards with Ordered[Hand]{
     val thisCards = this.Finders(order)(this)
     val thatCards = that.Finders(order)(that)
 
-           (thisCards , thatCards) match {
-      case (None      , None      ) => None
-      case (Some(_)   , None      ) => Some(LeftWinner)
-      case (None      , Some(_)   ) => Some(RightWinner)
-      case (Some(l)   , Some(r)   ) =>
+           (thisCards, thatCards) match {
+      case (None     , None     ) => None
+      case (Some(_)  , None     ) => Some(LeftWinner)
+      case (None     , Some(_)  ) => Some(RightWinner)
+      case (Some(l)  , Some(r)  ) =>
 
                (order         , byRank(l, r)) match {
           case (FullHouseOrder, _           ) => defineWinner(that, ThreeOfKindOrder)

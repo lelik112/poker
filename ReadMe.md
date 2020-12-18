@@ -13,10 +13,6 @@ There are two implementations on the solution:
 `sbt run` or `sbt run -b`   runs the "binary" version 
 `sbt run -d`                runs the "denary" version 
 
-#### Run on docker container
-
-TODO: Is not ready yet
-
 #### Input
 
  The input is to be read from the standard input, with one test case per line:
