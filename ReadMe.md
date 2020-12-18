@@ -13,15 +13,6 @@ There are two implementations on the solution:
 `sbt run` or `sbt run -b`   runs the "binary" version 
 `sbt run -d`                runs the "denary" version 
 
-#### Run on docker container
-Go to directory with docker files and execute the following command: 
-
-`docker-compose build`
-
-Then run `run.sh` with input and output redirection. For example:
-
-`./run.sh < ./input.txt > ./output.txt`
-
 #### Input
 
  The input is to be read from the standard input, with one test case per line:

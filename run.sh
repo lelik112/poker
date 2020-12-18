@@ -1,1 +1,2 @@
-cat $1 | docker run --name poker_container -i --rm poker_image
+#!/bin/bash
+sbt --error 'set showSuccess := false' run
