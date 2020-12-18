@@ -14,8 +14,13 @@ There are two implementations on the solution:
 `sbt run -d`                runs the "denary" version 
 
 #### Run on docker container
+Go to directory with docker files and execute the following command: 
 
-TODO: Is not ready yet
+`docker-compose build`
+
+Then run `run.sh` with input and output redirection. For example:
+
+`./run.sh < ./input.txt > ./output.txt`
 
 #### Input
 

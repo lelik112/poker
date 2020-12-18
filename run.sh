@@ -1,1 +1,1 @@
-docker run --name poker_container -d --rm poker
+cat $1 | docker run --name poker_container -i --rm poker_image

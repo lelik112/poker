@@ -1,0 +1,6 @@
+services:
+  poker:
+    build:
+      dockerfile: Dockerfile
+      context: ./
+    image: poker_image

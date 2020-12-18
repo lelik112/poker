@@ -4,4 +4,5 @@ RUN git clone https://github.com/lelik112/poker.git
 WORKDIR ./poker
 RUN chmod +x ./prepare.sh
 RUN ./prepare.sh
-CMD sbt
+RUN sbt compile
+CMD ["sbt", "run"]
