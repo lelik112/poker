@@ -23,7 +23,7 @@ case class StCards(cards: String) extends Cards {
 
   override def toString: String = cards
 
-  protected lazy val asList: List[String] = cards.grouped(2).toList
+  lazy val asList: List[String] = cards.grouped(2).toList
 }
 
 object StCards {

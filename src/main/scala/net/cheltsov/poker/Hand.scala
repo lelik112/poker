@@ -49,7 +49,7 @@ trait Hand extends Cards with Ordered[Hand]{
     FourOfKindOrder          -> FourOfKindFinder,
     FullHouseOrder           -> FullHouseFinder,
     FlushOrder               -> FlushFinder,
-    StraightFlushOrder       -> RegularStraightFinder,
+    StraightOrder            -> RegularStraightFinder,
     LowestStraightOrder      -> LowestStraightFinder,
     ThreeOfKindOrder         -> ThreeOfKindFinder,
     TwoPairOrder             -> TwoPairFinder,
